@@ -14,7 +14,8 @@ function! s:IsDirective(str)
 endfunction
 
 function! s:IsPosting(str)
-    return a:str =~# '\v^\s*[A-Z]\w+:'
+    return a:str =~# '\v^\s+([!&#?%PSTCURM]\s+)?([A-Z][A-Za-z0-9\-]+)(:[A-Z][A-Za-z0-9\-])'
+    "return a:str =~# '\v^\s*[A-Z]\w+:'
 endfunction
 
 function! s:IsMetadata(str)
@@ -33,8 +34,8 @@ function GetBeancountIndent(line_num)
     if l:this_line =~# '\v^\s*;' | return -1 | endif
     " This is a new directive or previous line is blank.
     if l:prev_line =~# '^\s*$' || s:IsDirective(l:this_line) | return 0 | endif
-    " Previous line is transaction or this is a posting.
-    if s:IsTransaction(l:prev_line) || s:IsPosting(l:this_line) | return &shiftwidth | endif
+    " Previous line is transaction or a posting or this is a posting.
+    if s:IsTransaction(l:prev_line) || s:IsPosting(l:prev_line) || s:IsPosting(l:this_line) | return &shiftwidth | endif
     if s:IsMetadata(l:this_line)
         let l:this_indent = indent(a:line_num - 1)
         if ! s:IsMetadata(l:prev_line) | let l:this_indent += &shiftwidth | endif
